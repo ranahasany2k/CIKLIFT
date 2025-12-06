@@ -24,15 +24,6 @@ CIKLIFT/
 │
 ├── all_notebooks/          # All training, testing, visualization, PCA/UMAP notebooks
 ├── all_weights/            # All checkpoints, LoRA adapters, best-performing model weights
-│
-├── src/
-│   ├── datasets/
-│   ├── models/
-│   ├── training/
-│   └── evaluation/
-│
-├── configs/                # Training configs for text-only fine-tuning
-│
 ├── requirements.txt
 └── README.md
 ```
@@ -52,7 +43,7 @@ You may place the datasets anywhere and adjust the notebook paths accordingly.
 
 ## 🏛 **High-Level Architecture**
 
-![High-Level Architecture](assets/high_level_architecture.png)
+![High-Level Architecture](Archtecture.jpg)
 
 This diagram explains the two-stage text-only adaptation process and how the model aligns Urdu embeddings with the original English-visual embedding space.
 
@@ -60,13 +51,29 @@ This diagram explains the two-stage text-only adaptation process and how the mod
 
 ## 📊 **Embedding Space Visualizations**
 
-### PCA Projection (Final Model)
-![PCA](assets/pca_final_model.png)
+### Before Adaptation: SigLIP2 Pretrained
 
-### UMAP Projection (Final Model)
-![UMAP](assets/umap_final_model.png)
+#### PCA Projection (SigLIP2 Pretrained)
+![PCA Pretrained](assets/ciklift_en_pca.png)
 
-These illustrate how the Urdu embedding space becomes geometrically aligned with the English encoder after the CIKLIFT adaptation.
+#### UMAP Projection (SigLIP2 Pretrained)
+![UMAP Pretrained](assets/ciklift_en_umap.png)
+
+The visualizations above show clear separation between English and Urdu text embeddings in the pretrained SigLIP2 model, indicating poor cross-lingual alignment.
+
+---
+
+### After Adaptation: CIKLIFT (Finetuned)
+
+#### PCA Projection (CIKLIFT)
+![PCA CIKLIFT](assets/ciklift_ur_pca.png)
+
+#### UMAP Projection (CIKLIFT)
+![UMAP CIKLIFT](assets/ciklift_ur_umap.png)
+
+After fine-tuning with CIKLIFT, the Urdu and English text embeddings are well-aligned and overlap substantially, demonstrating successful cross-lingual adaptation while maintaining coherent relationships with the visual modality.
+
+---
 
 ---
 
