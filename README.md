@@ -82,8 +82,8 @@ After fine-tuning with CIKLIFT, the Urdu and English text embeddings are well-al
 | Model              | Urdu Recall@1 | English Recall@1 | Notes                                          |
 | ------------------ | ------------- | ---------------- | ---------------------------------------------- |
 | CLIP ViT-B/16      | 0.5%          | 82.4%            | Fails on Urdu                                  |
-| SigLIP2            | 10.2%         | 84.1%            | Best zero-shot baseline                        |
-| Full Fine-Tuning   | 33.2%         | 29.1%            | English collapses                              |
+| SigLIP2            | 10.2%         | 92.1%            | Best zero-shot baseline                        |
+| Full Fine-Tuning   | 33.2%         | 49.1%            | English collapses                              |
 | LoRA (standard)    | 22.3%         | 46.3%            | Balanced but low Urdu                          |
 | **CIKLIFT (Ours)** | **57.0%**     | **74.5%**        | Best Urdu performance while preserving English |
 
