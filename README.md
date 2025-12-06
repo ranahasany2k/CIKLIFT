@@ -54,10 +54,10 @@ This diagram explains the two-stage text-only adaptation process and how the mod
 ### Before Adaptation: SigLIP2 Pretrained
 
 #### PCA Projection (SigLIP2 Pretrained)
-![PCA Pretrained](assets/ciklift_en_pca.png)
+![PCA Pretrained](ciklift_en_pca.png)
 
 #### UMAP Projection (SigLIP2 Pretrained)
-![UMAP Pretrained](assets/ciklift_en_umap.png)
+![UMAP Pretrained](ciklift_en_umap.png)
 
 The visualizations above show clear separation between English and Urdu text embeddings in the pretrained SigLIP2 model, indicating poor cross-lingual alignment.
 
@@ -66,10 +66,10 @@ The visualizations above show clear separation between English and Urdu text emb
 ### After Adaptation: CIKLIFT (Finetuned)
 
 #### PCA Projection (CIKLIFT)
-![PCA CIKLIFT](assets/ciklift_ur_pca.png)
+![PCA CIKLIFT](ciklift_ur_pca.png)
 
 #### UMAP Projection (CIKLIFT)
-![UMAP CIKLIFT](assets/ciklift_ur_umap.png)
+![UMAP CIKLIFT](ciklift_ur_umap.png)
 
 After fine-tuning with CIKLIFT, the Urdu and English text embeddings are well-aligned and overlap substantially, demonstrating successful cross-lingual adaptation while maintaining coherent relationships with the visual modality.
 
