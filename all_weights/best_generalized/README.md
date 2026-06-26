@@ -1,204 +1,124 @@
 ---
-base_model: ''
+base_model: google/siglip2-base-patch16-224
 library_name: peft
 tags:
-- lora
+  - lora
+  - siglip2
+  - cross-lingual
+  - urdu
+  - vision-language
+  - ciklift
+language:
+  - en
+  - ur
+license: mit
 ---
 
-# Model Card for Model ID
+# CIKLIFT — Best Generalized LoRA Adapter
 
-<!-- Provide a quick summary of what the model is/does. -->
-
-
+This is the **best-performing LoRA adapter** from the CIKLIFT framework, fine-tuned on the SigLIP2 (ViT-B/16) text encoder for cross-lingual Urdu–English vision-language retrieval.
 
 ## Model Details
 
-### Model Description
+- **Developed by:** Rana Hasan Mehmood, Maryam Bashir
+- **Institution:** FAST School of Computing, National University of Computer and Emerging Sciences, Lahore, Pakistan
+- **Model type:** LoRA adapter for SigLIP2 text encoder (SiglipTextTransformer)
+- **Language(s):** English (en), Urdu (ur)
+- **License:** MIT
+- **Fine-tuned from:** [google/siglip2-base-patch16-224](https://huggingface.co/google/siglip2-base-patch16-224)
 
-<!-- Provide a longer summary of what this model is. -->
+### Model Sources
 
-
-
-- **Developed by:** [More Information Needed]
-- **Funded by [optional]:** [More Information Needed]
-- **Shared by [optional]:** [More Information Needed]
-- **Model type:** [More Information Needed]
-- **Language(s) (NLP):** [More Information Needed]
-- **License:** [More Information Needed]
-- **Finetuned from model [optional]:** [More Information Needed]
-
-### Model Sources [optional]
-
-<!-- Provide the basic links for the model. -->
-
-- **Repository:** [More Information Needed]
-- **Paper [optional]:** [More Information Needed]
-- **Demo [optional]:** [More Information Needed]
+- **Repository:** [https://github.com/ranahasany2k/CIKLIFT](https://github.com/ranahasany2k/CIKLIFT)
+- **Paper:** *CIKLIFT: Contrastive and Integrated KL-Driven Interlingual Fine-Tuning for Cross-Lingual Vision-Language Models* (under review at Expert Systems With Applications)
 
 ## Uses
 
-<!-- Address questions around how the model is intended to be used, including the foreseeable users of the model and those affected by the model. -->
-
 ### Direct Use
 
-<!-- This section is for the model use without fine-tuning or plugging into a larger ecosystem/app. -->
+This adapter enables **zero-shot cross-lingual image–text retrieval** using Urdu queries on a frozen SigLIP2 vision encoder. It can be used for:
 
-[More Information Needed]
+- **Image search with Urdu text queries**
+- **Urdu caption ranking / retrieval**
+- **Cross-lingual multimodal understanding**
 
-### Downstream Use [optional]
+### How to Load
 
-<!-- This section is for the model use when fine-tuned for a task, or when plugged into a larger ecosystem/app -->
+```python
+from transformers import AutoModel
+from peft import PeftModel
 
-[More Information Needed]
-
-### Out-of-Scope Use
-
-<!-- This section addresses misuse, malicious use, and uses that the model will not work well for. -->
-
-[More Information Needed]
-
-## Bias, Risks, and Limitations
-
-<!-- This section is meant to convey both technical and sociotechnical limitations. -->
-
-[More Information Needed]
-
-### Recommendations
-
-<!-- This section is meant to convey recommendations with respect to the bias, risk, and technical limitations. -->
-
-Users (both direct and downstream) should be made aware of the risks, biases and limitations of the model. More information needed for further recommendations.
-
-## How to Get Started with the Model
-
-Use the code below to get started with the model.
-
-[More Information Needed]
+base_model = AutoModel.from_pretrained("google/siglip2-base-patch16-224")
+text_encoder = base_model.text_model
+adapted = PeftModel.from_pretrained(text_encoder, "./best_generalized")
+adapted.eval()
+```
 
 ## Training Details
 
 ### Training Data
 
-<!-- This should link to a Dataset Card, perhaps with a short stub of information on what the training data is all about as well as documentation related to data pre-processing or additional filtering. -->
-
-[More Information Needed]
+- **Stage 1:** Mendeley Parallel English–Urdu Corpus v2 (500K pairs, 10 epochs)
+- **Stage 2:** Agreement-filtered Mendeley corpus (200K pairs, 5 epochs)
+- **Stage 3:** Translated Conceptual Captions (50K pairs, 10 epochs)
 
 ### Training Procedure
 
-<!-- This relates heavily to the Technical Specifications. Content here should link to that section when it is relevant to the training procedure. -->
+Three-stage curriculum-based fine-tuning with combined contrastive + KL-divergence loss:
 
-#### Preprocessing [optional]
+$$\mathcal{L} = 0.4 \cdot \mathcal{L}_{CE} + 0.6 \cdot \mathcal{L}_{KL}$$
 
-[More Information Needed]
+### Training Hyperparameters
 
-
-#### Training Hyperparameters
-
-- **Training regime:** [More Information Needed] <!--fp32, fp16 mixed precision, bf16 mixed precision, bf16 non-mixed precision, fp16 non-mixed precision, fp8 mixed precision -->
-
-#### Speeds, Sizes, Times [optional]
-
-<!-- This section provides information about throughput, start/end time, checkpoint size if relevant, etc. -->
-
-[More Information Needed]
+- **Training regime:** fp32
+- **LoRA rank:** 64
+- **LoRA alpha:** 8
+- **LoRA dropout:** 0.2
+- **Target modules:** q_proj, v_proj, k_proj, o_proj, query, key, value, proj, dense
+- **Batch size:** 128
+- **Learning rate:** 1e-4
+- **Optimizer:** AdamW (weight decay 0.01)
+- **Hardware:** Single NVIDIA RTX 3060 (12 GB VRAM)
 
 ## Evaluation
 
-<!-- This section describes the evaluation protocols and provides the results. -->
+### Metrics
 
-### Testing Data, Factors & Metrics
+Bidirectional retrieval: Recall@1, Recall@5, Recall@10
 
-#### Testing Data
+### Results (Flickr1k-Urdu, Image→Text)
 
-<!-- This should link to a Dataset Card if possible. -->
+| Configuration | Urdu R@1 | Urdu R@5 | Urdu R@10 |
+| :--- | :---: | :---: | :---: |
+| SigLIP2 Zero-shot | 10.2% | 22.2% | 30.7% |
+| **CIKLIFT (This adapter)** | **57.0%** | **85.4%** | **91.7%** |
 
-[More Information Needed]
+### English Retention (Flickr1k-English, Image→Text)
 
-#### Factors
-
-<!-- These are the things the evaluation is disaggregating by, e.g., subpopulations or domains. -->
-
-[More Information Needed]
-
-#### Metrics
-
-<!-- These are the evaluation metrics being used, ideally with a description of why. -->
-
-[More Information Needed]
-
-### Results
-
-[More Information Needed]
-
-#### Summary
-
-
-
-## Model Examination [optional]
-
-<!-- Relevant interpretability work for the model goes here -->
-
-[More Information Needed]
+| Configuration | R@1 | R@5 | R@10 |
+| :--- | :---: | :---: | :---: |
+| SigLIP2 Zero-shot | 92.60% | 99.00% | 99.80% |
+| **CIKLIFT (This adapter)** | **74.90%** | **93.40%** | **96.60%** |
 
 ## Environmental Impact
 
-<!-- Total emissions (in grams of CO2eq) and additional considerations, such as electricity usage, go here. Edit the suggested text below accordingly -->
+- **Hardware Type:** NVIDIA RTX 3060 (12 GB)
+- **Training Time:** ~8 hours (all 3 stages)
+- **Cloud Provider:** Local (consumer hardware)
 
-Carbon emissions can be estimated using the [Machine Learning Impact calculator](https://mlco2.github.io/impact#compute) presented in [Lacoste et al. (2019)](https://arxiv.org/abs/1910.09700).
+## Citation
 
-- **Hardware Type:** [More Information Needed]
-- **Hours used:** [More Information Needed]
-- **Cloud Provider:** [More Information Needed]
-- **Compute Region:** [More Information Needed]
-- **Carbon Emitted:** [More Information Needed]
+```bibtex
+@article{mehmood2026ciklift,
+  title={CIKLIFT: Contrastive and Integrated KL-Driven Interlingual Fine-Tuning for Cross-Lingual Vision-Language Models},
+  author={Mehmood, Rana Hasan and Bashir, Maryam},
+  journal={Expert Systems With Applications (under review)},
+  year={2026}
+}
+```
 
-## Technical Specifications [optional]
-
-### Model Architecture and Objective
-
-[More Information Needed]
-
-### Compute Infrastructure
-
-[More Information Needed]
-
-#### Hardware
-
-[More Information Needed]
-
-#### Software
-
-[More Information Needed]
-
-## Citation [optional]
-
-<!-- If there is a paper or blog post introducing the model, the APA and Bibtex information for that should go in this section. -->
-
-**BibTeX:**
-
-[More Information Needed]
-
-**APA:**
-
-[More Information Needed]
-
-## Glossary [optional]
-
-<!-- If relevant, include terms and calculations in this section that can help readers understand the model or model card. -->
-
-[More Information Needed]
-
-## More Information [optional]
-
-[More Information Needed]
-
-## Model Card Authors [optional]
-
-[More Information Needed]
-
-## Model Card Contact
-
-[More Information Needed]
-### Framework versions
+### Framework Versions
 
 - PEFT 0.16.0
+- Transformers 4.35.0
+- PyTorch 2.0
